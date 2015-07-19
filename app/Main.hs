@@ -57,10 +57,10 @@ main = do
                           then cmd "tex2svg" "--inline" src
                           else cmd "tex2svg" src)
           let doc = parseText_ def $ LT.fromStrict svg0
-              scale = 1.5 :: Double
+              scale = 1.5 / 12 :: Double
               svg = LT.toStrict $ renderText def $
-                    doc & root %~ attr "height" . unpacked %~ (<> "em") . show . (/scale) . read . takeWhile (`elem`('.':['0'..'9']))
-                        & root %~ attr "width" . unpacked %~ (<> "em") . show . (/scale) . read . takeWhile (`elem`('.':['0'..'9']))
+                    doc & root %~ attr "height" . unpacked %~ (<> "px") . show . (/scale) . read . takeWhile (`elem`('.':['0'..'9']))
+                        & root %~ attr "width" . unpacked %~ (<> "px") . show . (/scale) . read . takeWhile (`elem`('.':['0'..'9']))
           if T.null svg
             then return next
             else do
