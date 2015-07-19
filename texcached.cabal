@@ -20,6 +20,7 @@ executable texcached
   build-depends:       base
                      , blaze-html >= 0.8.0.2
                      , hedis >= 0.6.5
+                     , lifted-base >= 0.2.3.6
                      , scotty
                      , shakespeare >= 2.0.5
                      , stm >= 2.4.4

@@ -3,9 +3,10 @@
 module Main where
 import           Control.Applicative           ((<$>), (<|>))
 import           Control.Concurrent
-import           Control.Concurrent.STM
+import           Control.Concurrent.QSem
 import           Control.Concurrent.STM.Map    (empty)
 import qualified Control.Concurrent.STM.Map    as TMap
+import           Control.Exception.Lifted
 import           Control.Monad.IO.Class
 import           Data.HashMap.Strict           (HashMap)
 import qualified Data.HashMap.Strict           as HM
@@ -31,9 +32,12 @@ redis = defaultConnectInfo {connectHost = "localhost"
                            ,connectPort = PortNumber 6379
                            }
 
+withQSem qsem = bracket_ (liftIO $ waitQSem qsem) (liftIO $ signalQSem qsem)
+
 main :: IO ()
 main = do
   con <- connect redis
+  qsem <- newQSem 3
   scotty 4049 $ do
     get "/tex.svg" $ do
       src <- param "tex"
@@ -45,7 +49,7 @@ main = do
       svg <- liftIO $ Red.runRedis con $ Red.get key >>= \case
         Right (Just txt) -> return $ return $ T.decodeUtf8 txt
         _ -> do
-          svg <- shelly (silently $ if inlined
+          svg <- shelly (withQSem qsem $ silently $ if inlined
                                     then cmd "tex2svg" "--inline" src
                                     else cmd "tex2svg" src)
           if T.null svg
