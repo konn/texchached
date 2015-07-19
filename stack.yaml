@@ -1,0 +1,8 @@
+flags: {}
+packages:
+- '.'
+extra-deps:
+- atomic-primops-0.8
+- ttrie-0.1.2
+- hedis-0.6.5
+resolver: lts-2.17
