@@ -27,7 +27,6 @@ executable texcached
                      , stm >= 2.4.4
                      , text >= 1.2.0.6
                      , transformers >= 0.3.0.0
-                     , ttrie >= 0.1.2
                      , unordered-containers >= 0.2.5.1
                      , wai >= 3.0.3.0
                      , xml-conduit >= 1.2.6

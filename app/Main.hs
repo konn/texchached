@@ -4,8 +4,6 @@ module Main where
 import           Control.Applicative           ((<$>), (<|>))
 import           Control.Concurrent
 import           Control.Concurrent.QSem
-import           Control.Concurrent.STM.Map    (empty)
-import qualified Control.Concurrent.STM.Map    as TMap
 import           Control.Exception.Lifted
 import           Control.Lens                  (takingWhile, to, (%~), (&),
                                                 (^.), _Just)
