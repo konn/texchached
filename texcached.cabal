@@ -20,6 +20,7 @@ executable texcached
   build-depends:       base
                      , blaze-html >= 0.8.0.2
                      , hedis >= 0.6.5
+                     , lens >= 4.7.0.1
                      , lifted-base >= 0.2.3.6
                      , scotty
                      , shakespeare >= 2.0.5
@@ -29,6 +30,8 @@ executable texcached
                      , ttrie >= 0.1.2
                      , unordered-containers >= 0.2.5.1
                      , wai >= 3.0.3.0
+                     , xml-conduit >= 1.2.6
+                     , xml-lens >= 0.1.6.3
 --                     , wai-middleware-cache
 --                     , wai-middleware-cache-redis
                      , shelly

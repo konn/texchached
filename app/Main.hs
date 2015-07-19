@@ -7,6 +7,8 @@ import           Control.Concurrent.QSem
 import           Control.Concurrent.STM.Map    (empty)
 import qualified Control.Concurrent.STM.Map    as TMap
 import           Control.Exception.Lifted
+import           Control.Lens                  (takingWhile, to, (%~), (&),
+                                                (^.), _Just)
 import           Control.Monad.IO.Class
 import           Data.HashMap.Strict           (HashMap)
 import qualified Data.HashMap.Strict           as HM
@@ -15,6 +17,7 @@ import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
 import           Data.Text.Lazy                (Text)
 import qualified Data.Text.Lazy                as LT
+import           Data.Text.Lens                (unpacked)
 import           Database.Redis                (ConnectInfo (..), PortID (..),
                                                 connect, defaultConnectInfo,
                                                 runRedis)
@@ -24,6 +27,8 @@ import           Shelly.Lifted                 (cmd, shelly, silently)
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 import           Text.Blaze.Html5              (docTypeHtml)
 import           Text.Hamlet
+import           Text.XML
+import           Text.XML.Lens                 (attr, root)
 import           Web.Scotty
 
 default (T.Text)
@@ -49,9 +54,15 @@ main = do
       svg <- liftIO $ Red.runRedis con $ Red.get key >>= \case
         Right (Just txt) -> return $ return $ T.decodeUtf8 txt
         _ -> do
-          svg <- shelly (withQSem qsem $ silently $ if inlined
-                                    then cmd "tex2svg" "--inline" src
-                                    else cmd "tex2svg" src)
+          svg0 <- shelly (withQSem qsem $ silently $
+                          if inlined
+                          then cmd "tex2svg" "--inline" src
+                          else cmd "tex2svg" src)
+          let doc = parseText_ def $ LT.fromStrict svg0
+              scale = 1.5 :: Double
+              svg = LT.toStrict $ renderText def $
+                    doc & root %~ attr "height" . unpacked %~ (<> "em") . show . (/scale) . read . takeWhile (`elem`('.':['0'..'9']))
+                        & root %~ attr "width" . unpacked %~ (<> "em") . show . (/scale) . read . takeWhile (`elem`('.':['0'..'9']))
           if T.null svg
             then return next
             else do
